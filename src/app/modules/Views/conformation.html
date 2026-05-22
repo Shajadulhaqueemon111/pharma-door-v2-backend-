@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Confirmation</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #a8edea, #fed6e3);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .card {
+        background: #fff;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        transition: transform 0.3s ease;
+      }
+
+      .card:hover {
+        transform: scale(1.02);
+      }
+
+      h1 {
+        font-size: 2rem;
+        color: #2d3436;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 1rem;
+        color: #636e72;
+        line-height: 1.5;
+      }
+
+      .success-icon {
+        font-size: 50px;
+        color: #00b894;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="success-icon">✔️</div>
+      <h1>{{message}}</h1>
+      <p>
+        Thank you for your payment. Your transaction has been successfully
+        processed.
+      </p>
+      <div>
+        <a
+          href="https://pharma-door-frontend.vercel.app"
+          style="
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #00b894;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+          "
+          onmouseover="this.style.backgroundColor='#019875'"
+          onmouseout="this.style.backgroundColor='#00b894'"
+        >
+          🔙 Back to Home
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
