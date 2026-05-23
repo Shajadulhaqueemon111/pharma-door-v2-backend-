@@ -98,7 +98,8 @@ const createPhermasistIntoDB = async (
   ] as const;
 
   for (const key of requiredFiles) {
-    if (!files[key] || files[key]!.length === 0 || !files[key]![0].path) {
+    // ✅ Check for `buffer` instead of `path`
+    if (!files[key] || files[key]!.length === 0 || !files[key]![0].buffer) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
         `Missing required file: ${key}`,
@@ -110,7 +111,8 @@ const createPhermasistIntoDB = async (
   const uploadFile = async (file: Express.Multer.File, label: string) => {
     const safeName = payload.name.replace(/\s+/g, '-').toLowerCase();
     const imageName = `${safeName}-${label}-${Date.now()}`;
-    return sendImageToCloudinary(file.path, imageName);
+
+    return sendImageToCloudinary(file.buffer, imageName);
   };
 
   const session = await mongoose.startSession();

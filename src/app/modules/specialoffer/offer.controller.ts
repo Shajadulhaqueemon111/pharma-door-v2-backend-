@@ -13,7 +13,7 @@ const createOffer = catchAsync(async (req, res) => {
   }
 
   const cloudinaryResult = await sendImageToCloudinary(
-    file.path,
+    file.path as unknown as Buffer,
     file.filename,
   );
 

@@ -1,51 +1,47 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import multer from 'multer';
-import fs from 'fs/promises';
+import streamifier from 'streamifier';
 import httpStatus from 'http-status';
 
 import AppError from '../../error/app.error';
 import config from '../../config';
 
+// cloudinary config
+cloudinary.config({
+  cloud_name: config.cloudinary_cloud_name,
+  api_key: config.cloudinary_api_key,
+  api_secret: config.cloudinary_api_secret,
+});
+
+// upload image from buffer
 export const sendImageToCloudinary = async (
-  filePath: string,
+  buffer: Buffer,
   imageName: string,
-) => {
-  // Configure cloudinary
-  cloudinary.config({
-    cloud_name: config.cloudinary_cloud_name,
-    api_key: config.cloudinary_api_key,
-    api_secret: config.cloudinary_api_secret,
-  });
-
-  try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      public_id: imageName,
-    });
-
-    if (!result.secure_url) {
-      throw new Error('Image upload failed: secure_url not found');
-    }
-
-    await fs.unlink(filePath);
-
-    return result;
-  } catch (error) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Cloudinary image upload failed',
+): Promise<UploadApiResponse> => {
+  return new Promise<UploadApiResponse>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        public_id: imageName,
+        folder: 'pharmadoor',
+      },
+      (error, result) => {
+        if (error || !result) {
+          return reject(
+            new AppError(
+              httpStatus.BAD_REQUEST,
+              'Cloudinary image upload failed',
+            ),
+          );
+        }
+        resolve(result);
+      },
     );
-  }
+
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
 };
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, `${process.cwd()}/uploads/`);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix);
-  },
-});
+// multer memory storage
+const storage = multer.memoryStorage();
 
 export const upload = multer({ storage });

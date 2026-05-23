@@ -41,7 +41,7 @@ const updateEquipment = catchAsync(async (req: Request, res: Response) => {
 
   if (req.file) {
     const cloudinaryResult = await sendImageToCloudinary(
-      req.file.path,
+      req.file.path as unknown as Buffer,
       `equipment-${Date.now()}`,
     );
 
