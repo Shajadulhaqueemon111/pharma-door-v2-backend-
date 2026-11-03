@@ -1,4 +1,13 @@
 dist
 .env
+.env.*
+!.env.example
 node_modules
 .vercel
+eng.traineddata
+*.traineddata
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store

@@ -12,6 +12,8 @@ import { EquipmentRoute } from '../modules/equipments/equipment.route';
 import { OfferRoute } from '../modules/specialoffer/offer.route';
 import { BlogRoute } from '../modules/blogsection/blog.route';
 import { AnimalMedicineRoute } from '../modules/animalmedicine/animalmed.route';
+import { DoctorRoute } from '../modules/doctor/doctor.route';
+import { ConsultationRoute } from '../modules/consultation/consultation.route';
 
 const router = Router();
 
@@ -67,6 +69,14 @@ const modulesRouter = [
   {
     path: '/animal-medicine',
     route: AnimalMedicineRoute,
+  },
+  {
+    path: '/doctor',
+    route: DoctorRoute,
+  },
+  {
+    path: '/consultation',
+    route: ConsultationRoute,
   },
 ];
 

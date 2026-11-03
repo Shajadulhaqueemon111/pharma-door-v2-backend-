@@ -27,19 +27,18 @@ router.get(
 );
 router.post(
   '/prescription',
-  authValidateRequest(USER_ROLE.pharmacist, USER_ROLE.user),
   upload.single('prescription'),
   MedicineController.checkPrescriptionMedicinesFromImage,
 );
 router.patch(
   '/:_id',
   validateRequest(medicineZodValidationSchema.updateMedicineValidationSchema),
-  authValidateRequest(USER_ROLE.pharmacist),
+  authValidateRequest(USER_ROLE.pharmacist, USER_ROLE.admin),
   MedicineController.updateMedicines,
 );
 router.delete(
   '/:id',
-  authValidateRequest(USER_ROLE.pharmacist),
+  authValidateRequest(USER_ROLE.pharmacist, USER_ROLE.admin),
   MedicineController.deleteMedicines,
 );
 
