@@ -10,13 +10,7 @@ const app: Application = express();
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(
-  cors({
-    origin: [
-      'http://localhost:5173',
-      'https://pharma-door-frontend.vercel.app',
-    ],
-    credentials: true,
-  }),
+  cors({ origin: (origin, callback) => callback(null, true), credentials: true }),
 );
 app.use(cookieParser());
 

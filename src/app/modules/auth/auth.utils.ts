@@ -1,14 +1,20 @@
 import AppError from '../../error/app.error';
-
 import httpStatus from 'http-status';
-
 import bcrypt from 'bcryptjs';
 import User from '../user/user.modle';
+
 export const validUserForLogin = async (email: string) => {
-  const user = await User.findOne({ email }).select('+status +password');
+  if (!email) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Email is required');
+  }
+
+  const cleanEmail = email.trim();
+  const user = await User.findOne({
+    email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') },
+  }).select('+status +password');
 
   if (!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'user in not found');
+    throw new AppError(httpStatus.BAD_REQUEST, 'User not found in system');
   }
 
   return user;
@@ -19,9 +25,8 @@ export const checkPassword = async (
   savePassword: string,
 ) => {
   const isMatched = await bcrypt.compare(givenPassword, savePassword);
-  console.log(isMatched);
   if (!isMatched) {
-    throw new AppError(httpStatus.FORBIDDEN, 'password does not matched');
+    throw new AppError(httpStatus.FORBIDDEN, 'Password does not match');
   }
 
   return isMatched;

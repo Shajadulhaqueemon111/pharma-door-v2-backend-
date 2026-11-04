@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.post(
   '/create-user',
-
   UserController.createUsers,
 );
 router.post(
@@ -43,17 +42,21 @@ router.post(
 router.get(
   '/',
   authValidateRequest(USER_ROLE.admin, USER_ROLE.pharmacist),
-
   UserController.getAllUser,
 );
 router.get('/:id', UserController.getSingleUser);
 router.patch(
   '/:id',
-  authValidateRequest(USER_ROLE.admin, USER_ROLE.pharmacist),
-
-  validateRequest(userZodValidationScema.updatedUserZodSchema),
+  authValidateRequest(USER_ROLE.admin, USER_ROLE.pharmacist, USER_ROLE.user),
   UserController.updatedUser,
 );
 router.delete('/:id', UserController.deletedUser);
+
+router.post(
+  '/upload-avatar',
+  authValidateRequest(USER_ROLE.admin, USER_ROLE.pharmacist, USER_ROLE.user),
+  upload.single('image'),
+  UserController.uploadAvatar,
+);
 
 export const UserRoutes = router;

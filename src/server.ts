@@ -47,3 +47,5 @@ async function main() {
     console.log('Server startup error:', err);
   }
 }
+
+export default app;

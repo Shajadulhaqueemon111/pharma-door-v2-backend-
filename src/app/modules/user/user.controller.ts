@@ -4,8 +4,10 @@ import httpStatus from 'http-status';
 
 import sendResponse from '../utils/sendResponse';
 import catchAsync from '../utils/catchAsync';
-
 import AppError from '../../error/app.error';
+import { sendImageToCloudinary } from '../utils/sendToimgeCloudinary';
+import User from './user.modle';
+import { createAuditLog } from '../audit/audit.service';
 
 const createUsers = catchAsync(async (req: Request, res: Response) => {
   const result = await UserServices.createUser(req.body);
@@ -54,6 +56,19 @@ const updatedUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
   const result = await UserServices.updatedUser(_id, payload);
 
+  await createAuditLog({
+    userId: req.user?._id,
+    userName: req.user?.name,
+    userEmail: req.user?.email,
+    userRole: req.user?.role,
+    action: 'UPDATE_USER_PROFILE',
+    target: 'User',
+    targetId: _id,
+    details: `Updated fields: ${Object.keys(payload).join(', ')}`,
+    ipAddress: (req.headers['x-forwarded-for'] as string) || req.ip || '127.0.0.1',
+    userAgent: req.headers['user-agent'] || 'Web Browser',
+  });
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -73,6 +88,7 @@ const createAdmin = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const createPhermasist = catchAsync(async (req, res) => {
   const { password, pharmacist } = req.body;
 
@@ -84,7 +100,6 @@ const createPhermasist = catchAsync(async (req, res) => {
     [fieldname: string]: Express.Multer.File[];
   };
 
-  // Validate required files exist
   if (
     !files['profileImage']?.length ||
     !files['drugLicenseImage']?.length ||
@@ -94,7 +109,6 @@ const createPhermasist = catchAsync(async (req, res) => {
     throw new AppError(400, 'All required files must be uploaded');
   }
 
-  // Pass files directly, no wrapping into single files
   const result = await UserServices.createPhermasistIntoDB(
     password,
     pharmacist,
@@ -109,6 +123,45 @@ const createPhermasist = catchAsync(async (req, res) => {
   });
 });
 
+const uploadAvatar = catchAsync(async (req: Request, res: Response) => {
+  if (!req.file) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Please upload an image file');
+  }
+
+  const userId = req.user?._id;
+  const imageName = `avatar_${userId}_${Date.now()}`;
+  const uploadResult = await sendImageToCloudinary(req.file.buffer, imageName);
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { profileImage: uploadResult.secure_url },
+    { new: true },
+  );
+
+  await createAuditLog({
+    userId,
+    userName: req.user?.name,
+    userEmail: req.user?.email,
+    userRole: req.user?.role,
+    action: 'UPLOAD_CLOUDINARY_AVATAR',
+    target: 'User',
+    targetId: String(userId),
+    details: `Uploaded new profile photo hosted on Cloudinary: ${uploadResult.secure_url}`,
+    ipAddress: (req.headers['x-forwarded-for'] as string) || req.ip || '127.0.0.1',
+    userAgent: req.headers['user-agent'] || 'Web Browser',
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile photo uploaded to Cloudinary successfully',
+    data: {
+      profileImage: uploadResult.secure_url,
+      user: updatedUser,
+    },
+  });
+});
+
 export const UserController = {
   createUsers,
   getAllUser,
@@ -117,4 +170,5 @@ export const UserController = {
   updatedUser,
   createAdmin,
   createPhermasist,
+  uploadAvatar,
 };

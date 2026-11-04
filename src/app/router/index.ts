@@ -14,6 +14,7 @@ import { BlogRoute } from '../modules/blogsection/blog.route';
 import { AnimalMedicineRoute } from '../modules/animalmedicine/animalmed.route';
 import { DoctorRoute } from '../modules/doctor/doctor.route';
 import { ConsultationRoute } from '../modules/consultation/consultation.route';
+import { AuditRoutes } from '../modules/audit/audit.route';
 
 const router = Router();
 
@@ -77,6 +78,10 @@ const modulesRouter = [
   {
     path: '/consultation',
     route: ConsultationRoute,
+  },
+  {
+    path: '/audit-logs',
+    route: AuditRoutes,
   },
 ];
 
